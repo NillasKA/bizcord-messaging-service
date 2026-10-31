@@ -1,0 +1,40 @@
+name: bizcord
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: bizcord
+      RABBITMQ_DEFAULT_PASS: bizcord-local-dev
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  messaging:
+    build:
+      context: .
+      dockerfile: apps/messaging-microservice/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RabbitMq__Username: bizcord
+      RabbitMq__Password: bizcord-local-dev
+      ConnectionStrings__Messages: Data Source=/app/data/messages.db
+    ports:
+      - "127.0.0.1:8000:8080"
+    volumes:
+      - messages-data:/app/data
+
+volumes:
+  rabbitmq-data:
+  messages-data:

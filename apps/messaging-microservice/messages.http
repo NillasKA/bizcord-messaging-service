@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:8000
+@channelId = 11111111-1111-1111-1111-111111111111
+@authorId = 22222222-2222-2222-2222-222222222222
+
+### Create a message and publish MessagePostedEvent
+# @name createMessage
+POST {{baseUrl}}/api/messages
+Content-Type: application/json
+
+{
+  "channelId": "{{channelId}}",
+  "authorId": "{{authorId}}",
+  "content": "Hello Bizcord"
+}
+
+### Replace this with messageId from the POST response
+@messageId = 33333333-3333-3333-3333-333333333333
+
+### Read one
+GET {{baseUrl}}/api/messages/{{messageId}}
+
+### Read messages for one channel
+GET {{baseUrl}}/api/messages?channelId={{channelId}}
+
+### Edit the content
+PUT {{baseUrl}}/api/messages/{{messageId}}
+Content-Type: application/json
+
+{"content": "Edited message"}
+
+### Delete the message
+DELETE {{baseUrl}}/api/messages/{{messageId}}
+
+### Invalid content: expect 400
+POST {{baseUrl}}/api/messages
+Content-Type: application/json
+
+{"channelId": "{{channelId}}", "authorId": "{{authorId}}", "content": "   "}
+
+### Liveness
+GET {{baseUrl}}/health

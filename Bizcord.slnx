@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/apps/messaging-microservice/src/">
+    <Project Path="apps/messaging-microservice/src/Bizcord.Messaging.Api/Bizcord.Messaging.Api.csproj" />
+  </Folder>
+  <Folder Name="/apps/messaging-microservice/tests/">
+    <Project Path="apps/messaging-microservice/tests/Bizcord.Messaging.UnitTests/Bizcord.Messaging.UnitTests.csproj" />
+    <Project Path="apps/messaging-microservice/tests/Bizcord.Messaging.IntegrationTests/Bizcord.Messaging.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/packages/">
+    <Project Path="packages/MessageClient/src/Bizcord.MessageClient.csproj" />
+    <Project Path="packages/Shared.Contracts/Bizcord.Shared.Contracts.csproj" />
+  </Folder>
+</Solution>
