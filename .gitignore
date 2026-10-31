@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/data/
+**/TestResults/
+.artifacts/
+.local/
+.vs/
+.idea/
+.env
+*.db
+*.db-shm
+*.db-wal
+*.user
+*.suo
