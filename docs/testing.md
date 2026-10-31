@@ -36,8 +36,12 @@ docker build -f apps/messaging-microservice/Dockerfile -t bizcord-messaging .
 
 ## Recorded validation
 
-- Release compilation and 18 tests that do not require RabbitMQ: passed, 31 October 2026.
+- Release compilation and the 18 tests that do not require RabbitMQ: passed, 31 October 2026.
 - Dependency vulnerability check (including transitive packages): no reported vulnerable packages, 31 October 2026.
-- Real-broker and container verification: pending Docker Desktop engine startup recovery on the development machine.
+- Full verification script: passed, **1 November 2026**. All **19 tests passed**, with zero failures/skips, including the real RabbitMQ contract test.
+- Linux image built successfully with a locked dependency restore. Compose started RabbitMQ, waited for its healthy condition, and started the API.
+- The containerized API passed the create/read/filter/edit/delete demonstration, including the expected `404` after deletion.
+- A separately created sample message survived an API container restart, confirming the SQLite named-volume persistence. That sample was then deleted.
+- The API container's runtime UID was **1654**, confirming non-root execution.
 
-The final entry will be updated only after those checks actually run.
+The development machine's Docker Desktop stale IPC endpoints were recovered before container checks. Those machine-specific recovery notes are kept in ignored local artifacts rather than the hand-in documentation. Explicit IPv4 loopback addresses avoid a Windows `localhost` fallback delay in the verification scripts.

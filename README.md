@@ -14,9 +14,9 @@ From the repository root:
 docker compose up --build -d --wait
 ```
 
-- API: <http://localhost:8000/api/messages>
-- Liveness check: <http://localhost:8000/health>
-- RabbitMQ management: <http://localhost:15672> (local development login: `bizcord` / `bizcord-local-dev`).
+- API: <http://127.0.0.1:8000/api/messages>
+- Liveness check: <http://127.0.0.1:8000/health>
+- RabbitMQ management: <http://127.0.0.1:15672> (local development login: `bizcord` / `bizcord-local-dev`).
 
 SQLite and RabbitMQ data use named Docker volumes and survive an ordinary stop/restart. The included credentials are for this localhost-only development setup.
 
@@ -65,14 +65,14 @@ The projects use xUnit and the .NET 10 Microsoft Testing Platform runner configu
 
 ```powershell
 docker compose up -d --wait rabbitmq
-dotnet run --project apps/messaging-microservice/src/Bizcord.Messaging.Api --urls http://localhost:8000
+dotnet run --project apps/messaging-microservice/src/Bizcord.Messaging.Api --urls http://127.0.0.1:8000
 ```
 
 Configuration uses normal .NET configuration/environment variables:
 
 | Variable | Local default | Compose value |
 | --- | --- | --- |
-| `RABBITMQ_HOST` | `localhost` | `rabbitmq` (Compose DNS name) |
+| `RABBITMQ_HOST` | `127.0.0.1` | `rabbitmq` (Compose DNS name) |
 | `RabbitMq__Username` | `bizcord` | `bizcord` |
 | `RabbitMq__Password` | `bizcord-local-dev` | `bizcord-local-dev` |
 | `ConnectionStrings__Messages` | `Data Source=data/messages.db` | `Data Source=/app/data/messages.db` |

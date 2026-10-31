@@ -13,7 +13,7 @@ builder.Services.AddSingleton(new SqliteMessageRepository(connectionString));
 builder.Services.AddSingleton<IMessageRepository>(provider => provider.GetRequiredService<SqliteMessageRepository>());
 builder.Services.AddScoped<MessageService>();
 
-var brokerHost = builder.Configuration["RABBITMQ_HOST"] ?? builder.Configuration["RabbitMq:Host"] ?? "localhost";
+var brokerHost = builder.Configuration["RABBITMQ_HOST"] ?? builder.Configuration["RabbitMq:Host"] ?? "127.0.0.1";
 var brokerUser = builder.Configuration["RabbitMq:Username"] ?? "bizcord";
 var brokerPassword = builder.Configuration["RabbitMq:Password"] ?? "bizcord-local-dev";
 builder.Services.AddMessageClient($"host={brokerHost};username={brokerUser};password={brokerPassword};timeout=5");

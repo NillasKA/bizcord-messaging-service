@@ -13,7 +13,7 @@ try {
     $ready = $false
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
         try {
-            $health = Invoke-WebRequest -Uri 'http://localhost:8000/health' -TimeoutSec 2
+            $health = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:8000/health' -TimeoutSec 5
             if ($health.StatusCode -eq 200) { $ready = $true; break }
         } catch { Start-Sleep -Seconds 1 }
     }
