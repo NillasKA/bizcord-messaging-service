@@ -1,12 +1,12 @@
 # Bizcord Messaging Service
 
-System Integration (E2026), compulsory assignment #1: weeks 36–40. This repository implements **one** bounded context of Bizcord, a Discord-like backend: creating, reading, editing, and deleting channel messages.
+The Messaging service for Bizcord, a Discord-like communication platform. It provides an API for creating, reading, editing, and deleting channel messages.
 
-The first feature follows **Week 40 Track A**: `POST /api/messages` saves a message to SQLite and publishes the prescribed `MessagePostedEvent` through RabbitMQ using EasyNetQ.
+`POST /api/messages` stores a message in SQLite and publishes a `MessagePostedEvent` through RabbitMQ using EasyNetQ.
 
 ## Start
 
-Prerequisites: Docker Desktop running with Linux containers. The .NET 10 SDK is also needed to run tests outside Docker.
+Prerequisites: Docker with Compose and Linux container support. The .NET 10 SDK is required for local development and tests outside Docker.
 
 From the repository root:
 
@@ -26,7 +26,7 @@ SQLite and RabbitMQ data use named Docker volumes and survive an ordinary stop/r
 .\scripts\demo.ps1
 ```
 
-This creates a fresh sample message, retrieves and filters it, edits it, and deletes that sample. The script prints the generated IDs and verifies HTTP behaviour. The event delivery is verified by the broker test below. Alternatively, open [the HTTP request examples](apps/messaging-microservice/messages.http) in an editor with HTTP client support.
+The script checks message creation, retrieval, channel filtering, editing, and deletion. It prints the generated IDs and removes its sample message. [HTTP request examples](apps/messaging-microservice/messages.http) are also available for manual testing.
 
 | Method | Route | Result |
 | --- | --- | --- |
@@ -40,26 +40,26 @@ This creates a fresh sample message, retrieves and filters it, edits it, and del
 
 ## Tests
 
-Fast tests with a real temporary SQLite database and a fake message publisher; no broker needed:
+Run the domain and API tests with a temporary SQLite database and a fake message publisher:
 
 ```powershell
 dotnet test --solution Bizcord.slnx -c Release --filter-not-trait "Category=BrokerIntegration"
 ```
 
-All tests, including real RabbitMQ publication and subscription (start RabbitMQ first):
+Run all tests, including RabbitMQ publication and subscription:
 
 ```powershell
 docker compose up -d --wait rabbitmq
 dotnet test --solution Bizcord.slnx -c Release
 ```
 
-One command for build, all tests, container startup, and the API demonstration:
+Build and start the containers, run all tests, and check the API:
 
 ```powershell
 .\scripts\verify.ps1
 ```
 
-The projects use xUnit and the .NET 10 Microsoft Testing Platform runner configured in `global.json`. The broker test subscribes before posting, receives a real message through RabbitMQ, checks all five event fields, and retrieves the saved message over HTTP.
+Tests use xUnit and Microsoft Testing Platform, configured in `global.json`. The broker test subscribes before posting, checks the received event fields, and retrieves the saved message over HTTP.
 
 ## Local development
 
@@ -68,7 +68,7 @@ docker compose up -d --wait rabbitmq
 dotnet run --project apps/messaging-microservice/src/Bizcord.Messaging.Api --urls http://127.0.0.1:8000
 ```
 
-Configuration uses normal .NET configuration/environment variables:
+Configuration is loaded from `appsettings.json` and environment variables:
 
 | Variable | Local default | Compose value |
 | --- | --- | --- |
@@ -102,16 +102,14 @@ docs/
 
 See [design](docs/design.md), [assignment coverage](docs/requirements.md), and [testing](docs/testing.md).
 
-## Deliberate scope and limitations
+`Directory.Build.props` contains the build settings shared by all projects: the .NET target framework, nullable reference types, implicit usings, warnings as errors, and NuGet lock-file generation. Each `.csproj` inherits these settings.
 
-This is a small course backend. Channel management, user profiles, and downstream consumers are external bounded contexts described in the design. This service accepts their IDs; authentication and checking those external records are future integrations.
+## Scope and limitations
 
-Only creation publishes `MessagePostedEvent`. Editing and deletion have CRUD behaviour; additional event contracts for those actions are future work.
+Channel management, user profiles, and event consumers are separate services described in the design. Messaging accepts channel and author IDs without validating them against those services. Authentication and authorization are not implemented.
 
-Saving to SQLite and publishing to RabbitMQ are separate operations. If publication fails, the API returns `503` with `persisted: true` and the saved `messageId`. The caller can retrieve that message. Automatic retries, deduplication, and an outbox are future work; blindly repeating POST could duplicate a message. `/health` is a liveness check, not a broker-readiness guarantee.
+Only message creation publishes an event. Edits and deletions update storage without publishing additional events.
 
-The schema is created on startup for this first version. Future schema changes need a migration strategy. Lists are unpaginated and intended for this small demonstration.
+Saving to SQLite and publishing to RabbitMQ are separate operations. If publication fails, the API returns `503` with `persisted: true` and the saved `messageId`. The message remains available through GET. There is no outbox, automatic publication retry, or request deduplication, so repeating POST can create duplicates.
 
-## Hand-in
-
-Review the code, documentation, and tests before publishing. The assignment requires **only a repository link** through the [Moodle hand-in](https://moodle.easv.dk/mod/assign/view.php?id=390209). Publishing to GitHub and submitting that link are manual steps for the repository owner.
+The schema is created on startup; schema migrations and list pagination are not implemented. `/health` reports application liveness without checking broker connectivity.
